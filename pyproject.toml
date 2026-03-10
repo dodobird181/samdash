@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "Samdash"
 version = "0.1.0"
-description = "My personal terminal dashboard."
+description = "My personal dashboard."
 authors = ["Samuel Morris <dodobird181@gmail.com>"]
 license = "The Unlicense"
 readme = "README.md"
@@ -12,6 +12,14 @@ python = "^3.12.3"
 textual = "^8.0.1"
 plotext = "^5.3.2"
 textual-plotext = "^1.0.1"
+pandas = "^3.0.1"
+requests = "^2.32.5"
+bs4 = "^0.0.2"
+yfinance = "^1.2.0"
+dash = "^4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^7.2.0"
 
 [build-system]
 requires = ["poetry-core"]
