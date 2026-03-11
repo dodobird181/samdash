@@ -3,6 +3,7 @@ package-lock.json
 poetry.lock
 .claude/
 .vscode/
+staticfiles/
 
 ####
 # Auto-generated gitignore for python below...
