@@ -1,0 +1,13 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    manage.py
+    config/wsgi.py
+    config/asgi.py
+    */tests/*
+    .venv/*
+    conftest.py
+
+[report]
+fail_under = 70

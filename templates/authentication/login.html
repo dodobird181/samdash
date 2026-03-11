@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login — Personal Data Portal</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body>
+  <div id="login-container">
+    <div id="login-box">
+      <div id="login-header">&#9632; Personal Data Portal</div>
+      <div id="login-subtitle">Secure Access Required</div>
+      <div id="login-divider"></div>
+      <p id="login-instructions">Sign in with your authorised Google account.</p>
+      <div id="google-signin-btn"></div>
+      <div id="login-error" style="display:none;color:#cc0000;margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- GSI: defer only (not async) so DOM is guaranteed ready when script runs -->
+  <script src="https://accounts.google.com/gsi/client" defer></script>
+
+  <script>
+    function handleGoogleLogin(response) {
+      fetch('/auth/google/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({credential: response.credential}),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = '/';
+        } else {
+          document.getElementById('login-error').style.display = 'block';
+          document.getElementById('login-error').textContent = 'Access denied. Unauthorised account.';
+        }
+      })
+      .catch(() => {
+        document.getElementById('login-error').style.display = 'block';
+        document.getElementById('login-error').textContent = 'Login failed. Please try again.';
+      });
+    }
+
+    // Explicit init — more reliable than the data-attribute approach with deferred scripts
+    window.addEventListener('load', function () {
+      google.accounts.id.initialize({
+        client_id: '{{ google_client_id }}',
+        callback: handleGoogleLogin,
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('google-signin-btn'),
+        { type: 'standard', size: 'large', theme: 'outline', text: 'sign_in_with', shape: 'rectangular' }
+      );
+    });
+  </script>
+</body>
+</html>

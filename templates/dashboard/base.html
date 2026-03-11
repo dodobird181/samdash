@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Personal Data Portal{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div id="portal-header">
+    <div id="portal-title">&#9632; Personal Data Portal</div>
+    <div id="portal-nav">
+      <a href="/">Dashboard</a>
+      <span class="nav-sep">|</span>
+      <a href="/admin/">Admin</a>
+      <span class="nav-sep">|</span>
+      <a href="/auth/logout/">Logout ({{ request.user.email }})</a>
+    </div>
+  </div>
+
+  {% block content %}{% endblock %}
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
