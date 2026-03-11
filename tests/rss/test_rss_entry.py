@@ -61,4 +61,3 @@ class TestRSSEntry:
         assert RSSEntry.objects.count() == 1
         feed.delete()
         assert RSSEntry.objects.count() == 0
-        assert RSSEntry.objects.count() == 0

@@ -7,14 +7,20 @@
 import { registerWidget } from "../../registry.js";
 
 function rssRender(container, data) {
-    if (!Array.isArray(data) || data.length === 0) {
+    // Handle both REST and GraphQL response formats
+    const entries = data.entries || data;
+
+    if (!Array.isArray(entries) || entries.length === 0) {
       container.innerHTML = '<div class="widget-loading">No entries found.</div>';
       return;
     }
 
-    const items = data.map(entry => {
-      const date = entry.published_at
-        ? new Date(entry.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    const items = entries.map(entry => {
+      const publishedAt = entry.publishedAt || entry.published_at;
+      const feedName = entry.feedName || entry.feed_name;
+
+      const date = publishedAt
+        ? new Date(publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
         : "";
       const summary = entry.summary
         ? `<div class="rss-entry-summary">${_truncate(entry.summary, 120)}</div>`
@@ -25,7 +31,7 @@ function rssRender(container, data) {
           <div class="rss-entry-title">
             <a href="${_escapeHtml(entry.link)}" target="_blank" rel="noopener">${_escapeHtml(entry.title)}</a>
           </div>
-          <div class="rss-entry-meta">${_escapeHtml(entry.feed_name)} &mdash; ${date}</div>
+          <div class="rss-entry-meta">${_escapeHtml(feedName)} &mdash; ${date}</div>
           ${summary}
         </div>
       `;

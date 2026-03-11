@@ -3,8 +3,8 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from dashboard.api.views import _generate_time_series
 from dashboard.models import DashboardWidget, KeyboardShortcut
+from dashboard.utils import generate_time_series
 
 
 class DashboardWidgetType(DjangoObjectType):
@@ -71,7 +71,7 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if not user.is_authenticated:
             return None
-        data = _generate_time_series(base_value=1950.0, volatility=0.008)
+        data = generate_time_series(base_value=1950.0, volatility=0.008)
         return TimeSeriesDataType(x=data["x"], y=data["y"])
 
     def resolve_silver_price(self, info):
@@ -79,7 +79,7 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if not user.is_authenticated:
             return None
-        data = _generate_time_series(base_value=24.0, volatility=0.012)
+        data = generate_time_series(base_value=24.0, volatility=0.012)
         return TimeSeriesDataType(x=data["x"], y=data["y"])
 
     def resolve_oil_price(self, info):
@@ -87,7 +87,7 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if not user.is_authenticated:
             return None
-        data = _generate_time_series(base_value=78.0, volatility=0.015)
+        data = generate_time_series(base_value=78.0, volatility=0.015)
         return TimeSeriesDataType(x=data["x"], y=data["y"])
 
     def resolve_treasury_10y(self, info):
@@ -95,7 +95,7 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if not user.is_authenticated:
             return None
-        data = _generate_time_series(base_value=4.25, volatility=0.005)
+        data = generate_time_series(base_value=4.25, volatility=0.005)
         return TimeSeriesDataType(x=data["x"], y=data["y"])
 
     def resolve_dow_gold_ratio(self, info):
@@ -103,9 +103,8 @@ class Query(graphene.ObjectType):
         user = info.context.user
         if not user.is_authenticated:
             return None
-        data = _generate_time_series(base_value=18.5, volatility=0.007)
+        data = generate_time_series(base_value=18.5, volatility=0.007)
         return TimeSeriesDataType(x=data["x"], y=data["y"])
 
 
-schema = graphene.Schema(query=Query)
 schema = graphene.Schema(query=Query)

@@ -1,28 +1,49 @@
 /**
  * Dashboard bootstrap.
  *
- * Reads widget cells from the DOM, fetches data from each widget's
- * API endpoint, and hands off rendering to the plugin registry.
+ * Reads widget cells from the DOM, fetches data from GraphQL API,
+ * and hands off rendering to the plugin registry.
  * Also sets up auto-refresh timers.
  */
 import { WidgetRegistry } from "./registry.js";
 import { ShortcutSystem } from "./shortcuts.js";
+import { fetchMarketData, fetchRSSEntries } from "./graphql-client.js";
 
 const Dashboard = (() => {
   const _timers = {};
 
+  // Map widget types to GraphQL query names
+  const _widgetTypeToQuery = {
+    gold_price: "goldPrice",
+    silver_price: "silverPrice",
+    oil_price: "oilPrice",
+    treasury_10y: "treasury10y",
+    dow_gold_ratio: "dowGoldRatio",
+  };
+
   async function _loadWidget(cell) {
     const type = cell.dataset.type;
-    const endpoint = cell.dataset.endpoint;
     const body = document.getElementById(`body-${type}`);
-    if (!body || !endpoint) return;
+    if (!body) return;
 
     body.innerHTML = '<div class="widget-loading">Loading...</div>';
 
     try {
-      const res = await fetch(endpoint);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      let data;
+
+      // Handle RSS feed widget separately
+      if (type === "rss_feed") {
+        const entries = await fetchRSSEntries(10);
+        data = { entries };
+      } else {
+        // Market data widgets
+        const queryName = _widgetTypeToQuery[type];
+        if (!queryName) {
+          throw new Error(`Unknown widget type: ${type}`);
+        }
+        data = await fetchMarketData(queryName);
+      }
+
       body.innerHTML = "";
       WidgetRegistry.renderWidget(type, body, data);
     } catch (err) {

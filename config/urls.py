@@ -9,7 +9,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include("authentication.urls")),
     path("graphql/", csrf_exempt(GraphQLView.as_view(graphiql=True))),
-    path("api/", include("dashboard.api.urls")),
-    path("api/rss/", include("rss.api.urls")),
     path("", include("dashboard.urls")),
 ]

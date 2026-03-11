@@ -18,7 +18,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
-    "rest_framework",
     "corsheaders",
     "graphene_django",
     "dashboard",
@@ -109,16 +108,6 @@ ALLOWED_GOOGLE_EMAIL = config("ALLOWED_GOOGLE_EMAIL", default="")
 
 # Development only — set DEV_BYPASS_AUTH=true to skip Google login
 DEV_BYPASS_AUTH = config("DEV_BYPASS_AUTH", default=False, cast=bool)
-
-# DRF
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
-}
 
 # GraphQL
 GRAPHENE = {

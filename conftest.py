@@ -1,15 +1,17 @@
 """Pytest configuration and shared fixtures."""
 import pytest
+from django.test import Client
 
 
 @pytest.fixture
-def api_client():
-    from rest_framework.test import APIClient
-    return APIClient()
+def client():
+    """Django test client."""
+    return Client()
 
 
 @pytest.fixture
 def admin_user(db):
+    """Create a superuser for testing."""
     from django.contrib.auth.models import User
     return User.objects.create_superuser(
         username="admin",
@@ -19,6 +21,7 @@ def admin_user(db):
 
 
 @pytest.fixture
-def authenticated_client(api_client, admin_user):
-    api_client.force_authenticate(user=admin_user)
-    return api_client
+def authenticated_client(client, admin_user):
+    """Authenticated Django test client."""
+    client.force_login(admin_user)
+    return client
