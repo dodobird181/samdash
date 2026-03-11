@@ -45,14 +45,18 @@
 <script type="module" src="{% static 'js/registry.js' %}"></script>
 <script type="module" src="{% static 'js/shortcuts.js' %}"></script>
 
-<!-- Widget plugins — auto-loaded -->
-<script type="module" src="{% static 'js/widgets/gold_price/widget.js' %}"></script>
-<script type="module" src="{% static 'js/widgets/silver_price/widget.js' %}"></script>
-<script type="module" src="{% static 'js/widgets/oil_price/widget.js' %}"></script>
-<script type="module" src="{% static 'js/widgets/treasury_10y/widget.js' %}"></script>
-<script type="module" src="{% static 'js/widgets/dow_gold_ratio/widget.js' %}"></script>
-<script type="module" src="{% static 'js/widgets/rss_feed/widget.js' %}"></script>
+<!-- Widget plugins and dashboard loader -->
+<script type="module">
+  // Import all widget plugins and dashboard
+  import "{% static 'js/widgets/gold_price/widget.js' %}";
+  import "{% static 'js/widgets/silver_price/widget.js' %}";
+  import "{% static 'js/widgets/oil_price/widget.js' %}";
+  import "{% static 'js/widgets/treasury_10y/widget.js' %}";
+  import "{% static 'js/widgets/dow_gold_ratio/widget.js' %}";
+  import "{% static 'js/widgets/rss_feed/widget.js' %}";
+  import { Dashboard } from "{% static 'js/dashboard.js' %}";
 
-<!-- Main dashboard bootstrap -->
-<script type="module" src="{% static 'js/dashboard.js' %}"></script>
+  // Initialize dashboard after all widgets are loaded
+  document.addEventListener("DOMContentLoaded", () => Dashboard.init());
+</script>
 {% endblock %}

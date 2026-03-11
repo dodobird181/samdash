@@ -1,4 +1,5 @@
 """TDD: Tests for dashboard API endpoints — written before implementation."""
+
 import pytest
 
 
@@ -10,6 +11,7 @@ class TestWidgetAPI:
 
     def test_list_widgets_authenticated(self, authenticated_client):
         from dashboard.models import DashboardWidget
+
         DashboardWidget.objects.create(
             title="Gold", widget_type="gold_price", api_endpoint="/api/gold-price/", enabled=True
         )
@@ -21,6 +23,7 @@ class TestWidgetAPI:
 
     def test_only_enabled_widgets_returned(self, authenticated_client):
         from dashboard.models import DashboardWidget
+
         DashboardWidget.objects.create(title="On", widget_type="gold_price", api_endpoint="/a/", enabled=True)
         DashboardWidget.objects.create(title="Off", widget_type="silver_price", api_endpoint="/b/", enabled=False)
         response = authenticated_client.get("/api/widgets/")
@@ -31,13 +34,31 @@ class TestWidgetAPI:
 
     def test_widget_response_shape(self, authenticated_client):
         from dashboard.models import DashboardWidget
+
         DashboardWidget.objects.create(
-            title="Gold", widget_type="gold_price", api_endpoint="/api/gold-price/",
-            grid_x=0, grid_y=0, width=2, height=2, enabled=True, refresh_interval_seconds=60
+            title="Gold",
+            widget_type="gold_price",
+            api_endpoint="/api/gold-price/",
+            grid_x=0,
+            grid_y=0,
+            width=2,
+            height=2,
+            enabled=True,
+            refresh_interval_seconds=60,
         )
         response = authenticated_client.get("/api/widgets/")
         w = response.json()[0]
-        for field in ["id", "title", "widget_type", "api_endpoint", "grid_x", "grid_y", "width", "height", "refresh_interval_seconds"]:
+        for field in [
+            "id",
+            "title",
+            "widget_type",
+            "api_endpoint",
+            "grid_x",
+            "grid_y",
+            "width",
+            "height",
+            "refresh_interval_seconds",
+        ]:
             assert field in w, f"Missing field: {field}"
 
 
@@ -49,6 +70,7 @@ class TestShortcutsAPI:
 
     def test_list_shortcuts_authenticated(self, authenticated_client):
         from dashboard.models import KeyboardShortcut
+
         KeyboardShortcut.objects.create(key="g", description="Focus gold", action_type="focus_widget", enabled=True)
         response = authenticated_client.get("/api/shortcuts/")
         assert response.status_code == 200
@@ -58,6 +80,7 @@ class TestShortcutsAPI:
 
     def test_only_enabled_shortcuts_returned(self, authenticated_client):
         from dashboard.models import KeyboardShortcut
+
         KeyboardShortcut.objects.create(key="a", description="A", action_type="next_widget", enabled=True)
         KeyboardShortcut.objects.create(key="b", description="B", action_type="next_widget", enabled=False)
         response = authenticated_client.get("/api/shortcuts/")
@@ -67,6 +90,7 @@ class TestShortcutsAPI:
 
     def test_shortcut_response_shape(self, authenticated_client):
         from dashboard.models import KeyboardShortcut
+
         KeyboardShortcut.objects.create(key="g", description="Focus gold", action_type="focus_widget")
         response = authenticated_client.get("/api/shortcuts/")
         s = response.json()[0]

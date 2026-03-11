@@ -1,5 +1,7 @@
 """URL patterns for the dashboard API."""
+
 from django.urls import path
+
 from dashboard.api import views
 
 urlpatterns = [

@@ -1,7 +1,5 @@
-"""Dashboard API views: widgets, shortcuts, and mock market data."""
-
-import random
 from datetime import date, timedelta
+from random import Random
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -38,7 +36,7 @@ def _generate_time_series(base_value: float, volatility: float, days: int = 180)
     dates = []
     prices = []
     price = base_value
-    rng = random.Random(base_value)  # deterministic seed for reproducibility
+    rng = Random(base_value)  # deterministic seed for reproducibility
 
     for i in range(days, 0, -1):
         day = today - timedelta(days=i)

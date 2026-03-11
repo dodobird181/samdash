@@ -79,8 +79,6 @@ if (typeof window !== "undefined") {
     const el = document.getElementById(`widget-${type}`);
     if (el) el.classList.toggle("expanded");
   };
-
-  document.addEventListener("DOMContentLoaded", () => Dashboard.init());
 }
 
 export { Dashboard };
