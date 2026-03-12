@@ -15,7 +15,7 @@ from streamlit import (
 )
 from streamlit.delta_generator import DeltaGenerator
 
-from config import INSTRUMENTS, cache_key
+from config import INSTRUMENTS, SPY_TO_GOLD_30Y_KEY, US_TEN_YEAR_TREASURY_KEY, cache_key
 from data_sources.utils.caching import read_cached_df, read_cached_price
 
 logger = getLogger(__name__)
@@ -139,20 +139,50 @@ def _price_overlays() -> None:
 
 @fragment(run_every="60s")
 def _ap_newsfeed():
+
+    # TODO: Refactor this into a datasource file.
     import requests
     from bs4 import BeautifulSoup
 
+    html = """
+    <div style="
+        height:1500px;
+        overflow-y:scroll;
+        border:1px solid #ccc;
+        padding:10px;
+        border-radius:8px;
+        background:#FFFFFF;
+    ">
+    """
+
     url = "https://apnews.com/live/iran-war-israel-trump-03-12-2026"
-    html = requests.get(url).text
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(requests.get(url).text, "html.parser")
     for tag in [*soup.select(".Advertisement"), *soup.select(".Page-actions")]:
-        print("decomposing...")
         tag.decompose()
     posts = soup.select_one(".LiveBlogPage-currentPosts")  # selector may change
     if posts is not None:
-        return markdown(posts, unsafe_allow_html=True)
+        html += str(posts)
+        html += "</div>"
+        return markdown(html, unsafe_allow_html=True)
     else:
         logger.warning("Could not fetch posts from AP News.")
+
+
+@fragment(run_every="1h")
+def _indicators():
+    markdown("### Spy to gold ratio")
+    df_30y = read_cached_df(SPY_TO_GOLD_30Y_KEY)
+    if df_30y is not None and not df_30y.empty:
+        plotly_chart(_make_base_figure(df_30y, "%Y"), width="stretch", key=SPY_TO_GOLD_30Y_KEY)
+    else:
+        write("SPY/Gold (30 year): fetching data...")
+
+    markdown("### US 10-year treasury yield")
+    df_30y = read_cached_df(US_TEN_YEAR_TREASURY_KEY)
+    if df_30y is not None and not df_30y.empty:
+        plotly_chart(_make_base_figure(df_30y, "%Y"), width="stretch", key=US_TEN_YEAR_TREASURY_KEY)
+    else:
+        write("SPY/Gold (30 year): fetching data...")
 
 
 _price_header()
@@ -164,5 +194,5 @@ with news_col:
     news_col.header(f"AP News", divider="violet")
     _ap_newsfeed()
 with bonds_col:
-    bonds_col.header(f"Bonds", divider="violet")
-    write("Hello bonds!")
+    bonds_col.header(f"Indicators", divider="green")
+    _indicators()

@@ -26,12 +26,31 @@ class Instrument:
     key: str  # short id, no underscores (used in cache key)
     name: str  # display name
     ticker: str  # yfinance symbol
-    color: str  # streamlit divider color
-    price_fetcher: Callable[[], float]
-    price_delta: timedelta  # cache TTL for spot price
     timeframes: list[Timeframe]
+    price_delta: timedelta | None = None  # cache TTL for spot price
+    color: str | None = None  # streamlit divider color
+    price_fetcher: Callable[[], float] | None = None
 
 
+THIRTY_YEAR_MONTHLY_TIMEFRAME = Timeframe(
+    key="1mo",
+    label="30 Year",
+    candle_label="monthly candles",
+    period="max",
+    interval="1mo",
+    hist_delta=timedelta(hours=12),
+    tick_fmt="%Y",
+)
+
+THREE_MONTHS_TIMEFRAME = Timeframe(
+    key="1d",
+    label="3 Month",
+    candle_label="daily candles",
+    period="90d",
+    interval="1d",
+    hist_delta=timedelta(minutes=30),
+    tick_fmt="%b %d, %Y",
+)
 _TIMEFRAMES = [
     Timeframe(
         key="15min",
@@ -51,27 +70,28 @@ _TIMEFRAMES = [
         hist_delta=timedelta(minutes=5),
         tick_fmt="%b %d",
     ),
-    Timeframe(
-        key="1d",
-        label="3 Month",
-        candle_label="daily candles",
-        period="90d",
-        interval="1d",
-        hist_delta=timedelta(minutes=30),
-        tick_fmt="%b %d, %Y",
-    ),
+    THREE_MONTHS_TIMEFRAME,
 ]
 
+GOLD_INSTRUMENT = Instrument(
+    key="gold",
+    name="Gold",
+    ticker="GC=F",
+    color="yellow",
+    price_fetcher=latest_gold_price,
+    price_delta=timedelta(seconds=5),
+    timeframes=_TIMEFRAMES,
+)
+
+SPY_INSTRUMENT = Instrument(
+    key="spy",
+    name="Spy",
+    ticker="SPY",
+    timeframes=_TIMEFRAMES,
+)
+
 INSTRUMENTS: list[Instrument] = [
-    Instrument(
-        key="gold",
-        name="Gold",
-        ticker="GC=F",
-        color="yellow",
-        price_fetcher=latest_gold_price,
-        price_delta=timedelta(seconds=5),
-        timeframes=_TIMEFRAMES,
-    ),
+    GOLD_INSTRUMENT,
     Instrument(
         key="silver",
         name="Silver",
@@ -95,3 +115,8 @@ INSTRUMENTS: list[Instrument] = [
 
 def cache_key(instrument: Instrument, timeframe: Timeframe) -> str:
     return f"{instrument.key}{timeframe.key}"
+
+
+SPY_TO_GOLD_RATIO_KEY = "spy-to-gold-ratio-3months"
+SPY_TO_GOLD_30Y_KEY = "spy-to-gold-ratio-30year"
+US_TEN_YEAR_TREASURY_KEY = "us-10-year-treasuty-yield"
