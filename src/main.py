@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from matplotlib import pyplot
-from pandas import DataFrame
+from pandas import DataFrame, DatetimeIndex
 from plotly.graph_objects import Candlestick, Figure
 from streamlit import (
     area_chart,
@@ -64,7 +64,10 @@ def get_plotly_chart(df: DataFrame, tickstrftime="%b %d") -> PlotlyState:
     try:
         df.index = df.index.tz_localize("UTC").tz_convert("US/Eastern")  # type: ignore
     except:
-        df.index = df.index.tz_convert("US/Eastern")  # type: ignore
+        try:
+            df.index = df.index.tz_convert("US/Eastern")  # type: ignore
+        except:
+            pass
 
     fig = Figure(
         data=[

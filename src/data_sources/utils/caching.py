@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from os import listdir, remove
+from os.path import exists
 from typing import Callable
 
 from pandas import DataFrame, read_csv
@@ -14,7 +15,9 @@ def _cache_df(obj_name: str, df: DataFrame, delta: timedelta) -> None:
     """
     for filename in listdir(CACHE_DIR):
         if filename.split("_")[0] == obj_name:
-            remove(f"{CACHE_DIR}/{filename}")
+            filepath = f"{CACHE_DIR}/{filename}"
+            if exists(filepath):
+                remove(filepath)
     lifespan = datetime.now() + delta
     filename = f"{CACHE_DIR}/{obj_name}_{lifespan.strftime(DT_SAVE_FORMAT)}.csv"
     df.to_csv(filename, index=True)
