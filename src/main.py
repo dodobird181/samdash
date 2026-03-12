@@ -1,18 +1,29 @@
+from logging import getLogger
+
 from pandas import DataFrame
 from plotly.graph_objects import Candlestick, Figure
-from streamlit import columns, plotly_chart, set_page_config, write
+from streamlit import (
+    cache_data,
+    columns,
+    fragment,
+    plotly_chart,
+    set_page_config,
+    write,
+)
 from streamlit.elements.plotly_chart import PlotlyState
-from streamlit_autorefresh import st_autorefresh
 
 from config import INSTRUMENTS, cache_key
 from data_sources.utils.caching import read_cached_df, read_cached_price
 
-st_autorefresh(interval=5000)
+logger = getLogger(__name__)
+
 set_page_config(layout="wide")
 
+_min_hist_delta = min(tf.hist_delta for inst in INSTRUMENTS for tf in inst.timeframes)
 
-def get_plotly_chart(df: DataFrame, tickstrftime="%b %d", current_price: float | None = None) -> PlotlyState:
-    # timezone conversion
+
+@cache_data
+def _make_figure(df: DataFrame, tickstrftime: str, current_price: float | None) -> Figure:
     try:
         df.index = df.index.tz_localize("UTC").tz_convert("US/Eastern")  # type: ignore
     except Exception:
@@ -56,39 +67,63 @@ def get_plotly_chart(df: DataFrame, tickstrftime="%b %d", current_price: float |
 
     if current_price is not None:
         fig.add_shape(
-            type="line", x0=0, x1=1, xref="paper",
-            y0=current_price, y1=current_price, yref="y",
+            type="line",
+            x0=0,
+            x1=1,
+            xref="paper",
+            y0=current_price,
+            y1=current_price,
+            yref="y",
             line=dict(dash="dot", color="rgba(255,255,255,0.4)", width=1),
         )
         fig.add_annotation(
-            x=1, xref="paper", y=current_price, yref="y",
-            text=f" {current_price} ", showarrow=False,
-            xanchor="left", yanchor="middle",
-            bgcolor="rgba(40,40,40,0.9)", bordercolor="white", borderwidth=1,
+            x=1,
+            xref="paper",
+            y=current_price,
+            yref="y",
+            text=f" {current_price} ",
+            showarrow=False,
+            xanchor="left",
+            yanchor="middle",
+            bgcolor="rgba(40,40,40,0.9)",
+            bordercolor="white",
+            borderwidth=1,
             font=dict(color="white", size=11),
         )
 
-    return plotly_chart(fig, width="stretch")
+    return fig
 
 
-# instrument header row
-_, *header_cols = columns([2] + [5] * len(INSTRUMENTS))
-for instrument, col in zip(INSTRUMENTS, header_cols):
-    price = read_cached_price(f"{instrument.key}price")
-    price_str = str(price) if price is not None else "—"
-    col.header(f"{instrument.name} - `{price_str}`", divider=instrument.color)
+def _render_chart(key: str, df: DataFrame, tickstrftime: str, current_price: float | None) -> PlotlyState:
+    return plotly_chart(_make_figure(df, tickstrftime, current_price), width="stretch", key=key)
 
-# one row per timeframe
-for timeframe_row in zip(*[inst.timeframes for inst in INSTRUMENTS]):
-    header_col, *data_cols = columns([2] + [5] * len(INSTRUMENTS))
-    header_col.header(timeframe_row[0].label)
-    header_col.write(timeframe_row[0].candle_label)
 
-    for instrument, timeframe, col in zip(INSTRUMENTS, timeframe_row, data_cols):
-        with col:
-            df = read_cached_df(cache_key(instrument, timeframe))
-            if df is not None and not df.empty:
-                price = read_cached_price(f"{instrument.key}price")
-                get_plotly_chart(df, timeframe.tick_fmt, price)
-            else:
-                write("Fetching data...")
+@fragment(run_every="2s")
+def _price_header() -> None:
+    _, *header_cols = columns([2] + [5] * len(INSTRUMENTS))
+    for instrument, col in zip(INSTRUMENTS, header_cols):
+        price = read_cached_price(f"{instrument.key}price")
+        price_str = str(price) if price is not None else "—"
+        col.header(f"{instrument.name} - `{price_str}`", divider=instrument.color)
+
+
+@fragment(run_every=_min_hist_delta)
+def _chart_grid() -> None:
+    for timeframe_row in zip(*[inst.timeframes for inst in INSTRUMENTS]):
+        header_col, *data_cols = columns([2] + [5] * len(INSTRUMENTS))
+        header_col.header(timeframe_row[0].label)
+        header_col.write(timeframe_row[0].candle_label)
+
+        for instrument, timeframe, col in zip(INSTRUMENTS, timeframe_row, data_cols):
+            with col:
+                key = cache_key(instrument, timeframe)
+                df = read_cached_df(key)
+                if df is not None and not df.empty:
+                    price = read_cached_price(f"{instrument.key}price")
+                    _render_chart(key, df, timeframe.tick_fmt, price)
+                else:
+                    write("Fetching data...")
+
+
+_price_header()
+_chart_grid()

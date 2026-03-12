@@ -10,14 +10,15 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.12.3"
 streamlit = "^1.55.0"
-streamlit-autorefresh = "^1.0.1"
 bs4 = "^0.0.2"
 yfinance = "^1.2.0"
 plotly = "^6.6.0"
 nbformat = "^5.10.4"
 mplfinance = "^0.12.10b0"
+redis = "^7.3.0"
 
 [tool.poetry.group.dev.dependencies]
+honcho = "^2.0.0"
 pytest = "^8.3"
 pytest-django = "^4.9"
 coverage = "^7.6"

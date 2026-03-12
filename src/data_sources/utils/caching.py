@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta
-from os import listdir, remove, replace
+from os import environ, listdir, remove, replace
 from os.path import exists
-from typing import Callable
+from typing import Callable, cast
 
 from pandas import DataFrame, read_csv
+from redis import Redis
+
+_redis: Redis = Redis.from_url(environ.get("REDIS_URL", "redis://localhost:6379"), decode_responses=True)
 
 CACHE_DIR = "cached_data"
 DT_SAVE_FORMAT = "%Y-%m-%dT%H:%M:%S"
@@ -31,34 +34,18 @@ def read_cached_df(obj_name: str) -> DataFrame | None:
     Does not fetch or write — intended for use by the Streamlit app.
     """
     for filename in listdir(CACHE_DIR):
-        if filename.split("_")[0] == obj_name:
+        if filename.split("_")[0] == obj_name and filename.endswith(".csv"):
             expiry = datetime.strptime(filename.split("_")[1].split(".")[0], DT_SAVE_FORMAT)
             if expiry <= datetime.now():
-                return None
+                continue
             return read_csv(f"{CACHE_DIR}/{filename}", index_col=0, parse_dates=True)
     return None
 
 
 def cache_price(key: str, price: float, delta: timedelta) -> None:
-    lifespan = datetime.now() + delta
-    final = f"{CACHE_DIR}/{key}_{lifespan.strftime(DT_SAVE_FORMAT)}.txt"
-    tmp = f"{final}.tmp"
-    with open(tmp, "w") as f:
-        f.write(str(price))
-    replace(tmp, final)
-    for filename in listdir(CACHE_DIR):
-        if filename.split("_")[0] == key and filename != f"{key}_{lifespan.strftime(DT_SAVE_FORMAT)}.txt":
-            filepath = f"{CACHE_DIR}/{filename}"
-            if exists(filepath):
-                remove(filepath)
+    _redis.set(key, str(price), ex=int(delta.total_seconds()))
 
 
 def read_cached_price(key: str) -> float | None:
-    for filename in listdir(CACHE_DIR):
-        if filename.split("_")[0] == key and filename.endswith(".txt"):
-            expiry = datetime.strptime(filename.split("_")[1].split(".")[0], DT_SAVE_FORMAT)
-            if expiry <= datetime.now():
-                return None
-            with open(f"{CACHE_DIR}/{filename}") as f:
-                return float(f.read())
-    return None
+    value = cast(str | None, _redis.get(key))
+    return float(value) if value is not None else None

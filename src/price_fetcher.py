@@ -4,6 +4,7 @@ Fetches live spot prices for all instruments and writes to cache.
     python src/price_fetcher.py
 """
 
+from datetime import timedelta
 from logging import getLogger
 from time import sleep
 
@@ -17,7 +18,8 @@ def fetch_prices() -> None:
     for instrument in INSTRUMENTS:
         try:
             price = instrument.price_fetcher()
-            cache_price(f"{instrument.key}price", price, instrument.price_delta)
+            # cache the price for 10 minutes (longer than the quick refresh rate on purpose)
+            cache_price(f"{instrument.key}price", price, timedelta(minutes=10))
             logger.info("%sprice: cached %s", instrument.key, price)
         except Exception as e:
             logger.error("%sprice: %s", instrument.key, e)
