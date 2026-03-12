@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from os import listdir, remove
+from os import listdir, remove, replace
 from os.path import exists
 from typing import Callable
 
@@ -9,18 +9,20 @@ CACHE_DIR = "cached_data"
 DT_SAVE_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
-def _cache_df(obj_name: str, df: DataFrame, delta: timedelta) -> None:
+def cache_df(obj_name: str, df: DataFrame, delta: timedelta) -> None:
     """
     Cache a dataframe with some name to use for later retrieval. Overrides previous caches with same obj_name.
     """
+    lifespan = datetime.now() + delta
+    final = f"{CACHE_DIR}/{obj_name}_{lifespan.strftime(DT_SAVE_FORMAT)}.csv"
+    tmp = f"{final}.tmp"
+    df.to_csv(tmp, index=True)
+    replace(tmp, final)
     for filename in listdir(CACHE_DIR):
-        if filename.split("_")[0] == obj_name:
+        if filename.split("_")[0] == obj_name and filename != f"{obj_name}_{lifespan.strftime(DT_SAVE_FORMAT)}.csv":
             filepath = f"{CACHE_DIR}/{filename}"
             if exists(filepath):
                 remove(filepath)
-    lifespan = datetime.now() + delta
-    filename = f"{CACHE_DIR}/{obj_name}_{lifespan.strftime(DT_SAVE_FORMAT)}.csv"
-    df.to_csv(filename, index=True)
 
 
 def read_cached_df(obj_name: str) -> DataFrame | None:
@@ -37,28 +39,26 @@ def read_cached_df(obj_name: str) -> DataFrame | None:
     return None
 
 
-def get_cached_df(obj_name: str, data_provider: Callable[[], DataFrame], delta: timedelta) -> DataFrame:
-    """
-    Get a cached dataframe, or else use the given data provider to generate the data and cache it.
-    """
-    cachepath = None
-    cachefilename = None
+def cache_price(key: str, price: float, delta: timedelta) -> None:
+    lifespan = datetime.now() + delta
+    final = f"{CACHE_DIR}/{key}_{lifespan.strftime(DT_SAVE_FORMAT)}.txt"
+    tmp = f"{final}.tmp"
+    with open(tmp, "w") as f:
+        f.write(str(price))
+    replace(tmp, final)
     for filename in listdir(CACHE_DIR):
-        # try to find the cache file
-        if filename.split("_")[0] == obj_name:
-            cachepath = f"{CACHE_DIR}/{filename}"
-            cachefilename = filename
-            break
-    if cachepath is None:
-        # base-case 1: no cached data
-        data = data_provider()
-        _cache_df(obj_name, data, delta)
-        return data
-    assert cachefilename is not None
-    if datetime.strptime(cachefilename.split("_")[1].split(".")[0], DT_SAVE_FORMAT) <= datetime.now():
-        # base-case 2: cache entry has expired
-        data = data_provider()
-        _cache_df(obj_name, data, delta)
-        return data
-    # otherwise, the cache should be valid
-    return read_csv(cachepath, index_col=0, parse_dates=True)
+        if filename.split("_")[0] == key and filename != f"{key}_{lifespan.strftime(DT_SAVE_FORMAT)}.txt":
+            filepath = f"{CACHE_DIR}/{filename}"
+            if exists(filepath):
+                remove(filepath)
+
+
+def read_cached_price(key: str) -> float | None:
+    for filename in listdir(CACHE_DIR):
+        if filename.split("_")[0] == key and filename.endswith(".txt"):
+            expiry = datetime.strptime(filename.split("_")[1].split(".")[0], DT_SAVE_FORMAT)
+            if expiry <= datetime.now():
+                return None
+            with open(f"{CACHE_DIR}/{filename}") as f:
+                return float(f.read())
+    return None
