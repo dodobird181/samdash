@@ -23,6 +23,20 @@ def _cache_df(obj_name: str, df: DataFrame, delta: timedelta) -> None:
     df.to_csv(filename, index=True)
 
 
+def read_cached_df(obj_name: str) -> DataFrame | None:
+    """
+    Read a cached dataframe. Returns None if not found or expired.
+    Does not fetch or write — intended for use by the Streamlit app.
+    """
+    for filename in listdir(CACHE_DIR):
+        if filename.split("_")[0] == obj_name:
+            expiry = datetime.strptime(filename.split("_")[1].split(".")[0], DT_SAVE_FORMAT)
+            if expiry <= datetime.now():
+                return None
+            return read_csv(f"{CACHE_DIR}/{filename}", index_col=0, parse_dates=True)
+    return None
+
+
 def get_cached_df(obj_name: str, data_provider: Callable[[], DataFrame], delta: timedelta) -> DataFrame:
     """
     Get a cached dataframe, or else use the given data provider to generate the data and cache it.
