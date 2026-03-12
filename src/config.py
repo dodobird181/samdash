@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from logging import INFO, basicConfig
+from logging import INFO, WARNING, basicConfig, getLogger
 from typing import Callable
 
 from data_sources.investingdotcom import latest_brent_crude_oil_price
 from data_sources.kitco import latest_gold_price, latest_silver_price
 
 basicConfig(level=INFO, format="%(asctime)s %(levelname)s %(message)s", datefmt="%H:%M:%S")
+# getLogger("yfinance").setLevel(WARNING)
 
 
 @dataclass

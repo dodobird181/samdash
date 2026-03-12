@@ -12,7 +12,8 @@ class NoData(Exception):
 
 
 def get_yfinance_data(instrument_name: str, period="10d", interval="4h") -> DataFrame:
-    data = download(instrument_name, period=period, interval=interval)
+
+    data = download(instrument_name, period=period, interval=interval, progress=False)
     if data is None:
         raise NoData(instrument_name)
     if isinstance(data.columns, MultiIndex):
