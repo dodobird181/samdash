@@ -4,6 +4,7 @@ poetry.lock
 .claude/
 .vscode/
 staticfiles/
+cached_data/
 
 ####
 # Auto-generated gitignore for python below...
