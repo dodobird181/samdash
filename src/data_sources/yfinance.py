@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pandas import DataFrame, MultiIndex
 from yfinance import download
+from yfinance import Ticker
 
 
 class NoData(Exception):
@@ -21,3 +22,7 @@ def get_yfinance_data(instrument_name: str, period="10d", interval="4h") -> Data
         data.columns = data.columns.get_level_values(0)
     data = data.astype(float)
     return data
+
+
+def latest_spy_price():
+    return round(Ticker("SPY").fast_info["last_price"], 2)
