@@ -5,6 +5,7 @@ poetry.lock
 .vscode/
 staticfiles/
 cached_data/*
+!cached_data/.pleasetrack
 
 ####
 # Auto-generated gitignore for python below...
