@@ -5,6 +5,7 @@ from typing import Callable
 
 from data_sources.investingdotcom import latest_brent_crude_oil_price
 from data_sources.kitco import latest_gold_price, latest_silver_price
+from data_sources.yfinance import latest_spy_price
 
 basicConfig(level=INFO, format="%(asctime)s %(levelname)s %(message)s", datefmt="%H:%M:%S")
 # getLogger("yfinance").setLevel(WARNING)
@@ -107,6 +108,15 @@ INSTRUMENTS: list[Instrument] = [
         ticker="BZ=F",
         color="red",
         price_fetcher=latest_brent_crude_oil_price,
+        price_delta=timedelta(seconds=5),
+        timeframes=_TIMEFRAMES,
+    ),
+    Instrument(
+        key="spy",
+        name="S&P 500",
+        ticker="SPY",
+        color="green",
+        price_fetcher=latest_spy_price,
         price_delta=timedelta(seconds=5),
         timeframes=_TIMEFRAMES,
     ),
