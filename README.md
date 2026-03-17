@@ -4,7 +4,7 @@ Samdash is a [Streamlit](https://streamlit.io/) webapp for aggregating news and 
 [<img src="https://raw.githubusercontent.com/dodobird181/samdash/refs/heads/main/thumbnail.png" alt="Loading thumbnail..." width="800" style="margin-bottom: 20px;"/>](https://sammorris.ca/samdash)
 
 ### Motivation
-The world has been getting increasingly volatile over the past couple of years, and I've found that the stock-market has reflected this volatility as well. The problem is, the more I learn about how markets function (and disfunction), the more webpages I want to check to catch a glimpse of what I consider to be "the full-picture."
+The world has been getting increasingly volatile over the past couple of years, and I've found that the stock-market has reflected this volatility as well. The problem is, the more I learn about how markets function (and disfunction), the more webpages I found myself checking to catch a glimpse of what I consider to be "the full-picture."
 
 This project is my attempt at a solution: put every data source I want to check in one place!
 
