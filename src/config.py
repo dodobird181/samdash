@@ -86,8 +86,11 @@ GOLD_INSTRUMENT = Instrument(
 
 SPY_INSTRUMENT = Instrument(
     key="spy",
-    name="Spy",
+    name="S&P 500",
     ticker="SPY",
+    color="green",
+    price_fetcher=latest_spy_price,
+    price_delta=timedelta(seconds=5),
     timeframes=_TIMEFRAMES,
 )
 
@@ -111,15 +114,7 @@ INSTRUMENTS: list[Instrument] = [
         price_delta=timedelta(seconds=5),
         timeframes=_TIMEFRAMES,
     ),
-    Instrument(
-        key="spy",
-        name="S&P 500",
-        ticker="SPY",
-        color="green",
-        price_fetcher=latest_spy_price,
-        price_delta=timedelta(seconds=5),
-        timeframes=_TIMEFRAMES,
-    ),
+    SPY_INSTRUMENT,
 ]
 
 
