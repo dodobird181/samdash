@@ -1,8 +1,10 @@
 !/usr/bin/bash
 
+set -e
+
 git pull origin main
-systemctl restart samdash
-if systemctl is-active --quiet samdash; then
+sudo systemctl restart samdash
+if sudo systemctl is-active --quiet samdash; then
     echo "Service is running."
     exit 0
 else
