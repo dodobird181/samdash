@@ -1,5 +1,5 @@
 # [Samdash](https://sammorris.ca/samdash)
-Samdash is a [Streamlit](https://streamlit.io/) webapp for aggregating news and economic data that I build for fun. It tracks Gold, Silver, Oil, the S&P 500, AP News, and more. It is also a work-in-progress.
+Samdash is a [Streamlit](https://streamlit.io/) webapp for aggregating news and economic data that I build for fun. It tracks Gold, Silver, Oil, the S&P 500, AP News, and more. It is also a work-in-progress. See the code [here](https://github.com/dodobird181/samdash).
 
 [<img src="https://raw.githubusercontent.com/dodobird181/samdash/refs/heads/main/thumbnail.png" alt="Loading thumbnail..." width="800" style="margin-bottom: 20px;"/>](https://sammorris.ca/samdash)
 
