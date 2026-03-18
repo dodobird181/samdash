@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-set -e
-
 git pull origin main
 sudo systemctl restart samdash
 if sudo systemctl is-active --quiet samdash; then
