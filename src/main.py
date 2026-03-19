@@ -196,3 +196,6 @@ with news_col:
 with bonds_col:
     bonds_col.header(f"Indicators", divider="green")
     _indicators()
+
+
+logger.info("Rendering streamlit app...")
