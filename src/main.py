@@ -34,7 +34,7 @@ _PLOT_H = _CHART_H - _MARGIN_T - _MARGIN_B  # 290
 _OVERLAY_OFFSET = _CHART_H + 16  # 416
 
 
-def get_remote_ip():
+def get_remote_ip() -> str | None:
     try:
         ctx = get_script_run_ctx()
         if ctx is None:
@@ -46,9 +46,9 @@ def get_remote_ip():
     except Exception as e:
         return None
 
-    logger.info(session_info.request.headers)
     if "X-Real-IP" in session_info.request.headers:
         return session_info.request.headers["X-Real-IP"]
+    return None
 
 
 @cache_data
