@@ -34,7 +34,7 @@ def fetch_all() -> None:
                     logger.warning("%s: empty response, skipping", key)
                     continue
                 cache_df(key, data, timeframe.hist_delta)
-                logger.info("%s: cached %d rows", key, len(data))
+                logger.debug("%s: cached %d rows", key, len(data))
             except Exception as e:
                 logger.error("%s: %s", key, e)
 
@@ -47,7 +47,7 @@ def fetch_all() -> None:
                 logger.warning("%s: empty response, skipping", key)
                 continue
             cache_df(key, data, timeframe.hist_delta)
-            logger.info("%s: cached %d rows", key, len(data))
+            logger.debug("%s: cached %d rows", key, len(data))
         except Exception as e:
             logger.error("%s: %s", key, e)
 
@@ -61,7 +61,7 @@ def fetch_all() -> None:
         )
         if not data.empty:
             cache_df(gold_30y_key, data, THIRTY_YEAR_MONTHLY_TIMEFRAME.hist_delta)
-            logger.info("%s: cached %d rows", gold_30y_key, len(data))
+            logger.debug("%s: cached %d rows", gold_30y_key, len(data))
         else:
             logger.warning("%s: empty response, skipping", gold_30y_key)
     except Exception as e:
@@ -75,7 +75,7 @@ def fetch_all() -> None:
             spy_30y_df[["Open", "High", "Low", "Close"]].div(gold_30y_df[["Open", "High", "Low", "Close"]]).dropna()
         )
         cache_df(SPY_TO_GOLD_30Y_KEY, ratio_30y, THIRTY_YEAR_MONTHLY_TIMEFRAME.hist_delta)
-        logger.info("%s: cached %d rows", SPY_TO_GOLD_30Y_KEY, len(ratio_30y))
+        logger.debug("%s: cached %d rows", SPY_TO_GOLD_30Y_KEY, len(ratio_30y))
     else:
         logger.warning("%s: missing gold or spy data, skipping", SPY_TO_GOLD_30Y_KEY)
 
@@ -84,7 +84,7 @@ def fetch_all() -> None:
         treasury_df = get_yfinance_data("^TNX", period="max", interval="1mo")
         if not treasury_df.empty:
             cache_df(US_TEN_YEAR_TREASURY_KEY, treasury_df, THIRTY_YEAR_MONTHLY_TIMEFRAME.hist_delta)
-            logger.info("%s: cached %d rows", US_TEN_YEAR_TREASURY_KEY, len(treasury_df))
+            logger.debug("%s: cached %d rows", US_TEN_YEAR_TREASURY_KEY, len(treasury_df))
         else:
             logger.warning("%s: empty response, skipping", US_TEN_YEAR_TREASURY_KEY)
     except Exception as e:

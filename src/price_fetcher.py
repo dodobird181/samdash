@@ -20,7 +20,7 @@ def fetch_prices() -> None:
             price = instrument.price_fetcher()
             # cache the price for 10 minutes (longer than the quick refresh rate on purpose)
             cache_price(f"{instrument.key}price", price, timedelta(minutes=10))
-            logger.info("%sprice: cached %s", instrument.key, price)
+            logger.debug("%sprice: cached %s", instrument.key, price)
         except Exception as e:
             logger.error("%sprice: %s", instrument.key, e)
 
