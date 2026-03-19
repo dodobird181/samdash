@@ -1,13 +1,8 @@
 #!/usr/bin/bash
 
-set -e
+set -euo pipefail
 
 git pull origin main
-systemctl --user restart samdash
-if systemctl --user is-active --quiet samdash; then
-    echo "Service is running."
-    exit 0
-else
-    echo "Service is not running."
-    exit 1
-fi
+sudo -u dodob systemctl --user restart samdash
+sleep 2  # in case service starts then crashes quickly
+sudo -u dodob systemctl --user is-active samdash
